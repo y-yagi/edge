@@ -7,8 +7,8 @@ module Edge
       # * dependent - passed to children has_many (default: none)
       # * foreign_key - column name to use for parent foreign_key (default: parent_id)
       # * order - how to order children (default: none)
-      def acts_as_forest(options={})
-        options.assert_valid_keys :foreign_key, :order, :dependent
+      def acts_as_forest(options={}, belongs_to_options: {})
+        options.assert_valid_keys :foreign_key, :order, :dependent, :belongs_to_options
 
         class_attribute :forest_foreign_key
         self.forest_foreign_key = options[:foreign_key] || "parent_id"
@@ -23,7 +23,7 @@ module Edge
 
         dependent_options = options[:dependent] ? { dependent: options[:dependent] } : {}
 
-        belongs_to :parent, common_options.merge(inverse_of: :children)
+        belongs_to :parent, common_options.merge(inverse_of: :children).merge(belongs_to_options)
 
         if forest_order
           has_many :children, -> { order(forest_order) }, common_options.merge(inverse_of: :parent).merge(dependent_options)
